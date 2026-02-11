@@ -319,7 +319,7 @@ function startBlackjack() {
   currentGame = "blackjack";
   clearScreen();
   print("=== BLACKJACK ===");
-  if (money <= 0) { print("You're broke! Maybe a loan?"); return; }
+  if (money <= 0) { print("You're to broke to play L Bozo"); return; }
   updateMoneyDisplay();
   if (autoBet && lastBlackjackBet && money >= lastBlackjackBet) {
     bjBet = lastBlackjackBet;
@@ -372,10 +372,10 @@ function blackjackLoop() {
   }
 
   let moves=["(H)it","(S)tand"];
-  if (bjPlayer.length===2 && money-bjBet>0) moves.push("(D)ouble down");
+  if (bjPlayer.length===2 && money-bjBet>0) moves.push("(D)ouble");
   ask(moves.join(", ")+" >", val => {
     val=(val||"").trim().toUpperCase();
-    if (val==="H"||val==="S"||(val==="D"&&moves.includes("(D)ouble down"))) handleBlackjackMove(val);
+    if (val==="H"||val==="S"||(val==="D"&&moves.includes("(D)ouble"))) handleBlackjackMove(val);
     else blackjackLoop();
   });
 }
@@ -383,7 +383,7 @@ function blackjackLoop() {
 function handleBlackjackMove(move) {
   if (move==="D") {
     const maxAdd=Math.min(bjBet,money-bjBet);
-    ask(`How much to increase bet? (1-${maxAdd})`, val => {
+    ask(`How much u wanna increase ur bet by? (1-${maxAdd})`, val => {
       if (!/^\d+$/.test(val||"")){ blackjackLoop(); return; }
       const add=parseInt(val,10);
       if (add<1||add>maxAdd){ blackjackLoop(); return; }
@@ -427,7 +427,7 @@ function endBlackjackRound() {
     resultText="You busted! You lost!";
     delta=-bjBet;
   } else if (dealerVal>21){
-    resultText=`Dealer busts! You win $${bjBet}!`;
+    resultText=`The Dealer busts! You win $${bjBet}!`;
     delta=bjBet;
   } else if (playerVal<dealerVal){
     resultText="You lost!";
@@ -436,7 +436,7 @@ function endBlackjackRound() {
     resultText=`You won $${bjBet}!`;
     delta=bjBet;
   } else {
-    resultText="It's a tie, the bet is returned to you.";
+    resultText="It's a draw so ur moneys returned";
     delta=0;
   }
   print(resultText);
@@ -461,7 +461,7 @@ function startSlots() {
   currentGame="slots";
   clearScreen();
   print("=== SLOT MACHINE ===");
-  if (money<=0){ print("You're broke! Maybe a loan?"); return; }
+  if (money<=0){ print("Ur broke come back when u got da dough?"); return; }
   updateMoneyDisplay();
   if (autoBet && lastSlotBet && money>=lastSlotBet){
     spinSlots(lastSlotBet);
@@ -471,9 +471,9 @@ function startSlots() {
 }
 
 function askSlotBet() {
-  ask(`How much do you bet? (1-${money}, or QUIT)`, val => {
+  ask(`How much u want to bet? (1-${money}, or QUIT)`, val => {
     val=(val||"").trim().toUpperCase();
-    if (val==="QUIT"){ clearScreen(); print("Leaving the slot machine."); currentGame=null; return; }
+    if (val==="QUIT"){ clearScreen(); print("Most gamblers quit before their big win 😞."); currentGame=null; return; }
     if (!/^\d+$/.test(val)){ askSlotBet(); return; }
     const bet=parseInt(val,10);
     if (bet<1||bet>money){ askSlotBet(); return; }
@@ -495,7 +495,7 @@ function spinSlots(bet) {
     let win=0;
     if (reels[0]===reels[1]&&reels[1]===reels[2]){
       win=bet*10;
-      print("JACKPOT! Three of a kind!");
+      print("JACKPOT! Three of a kind!🤑🤑🤑");
     } else if (reels[0]===reels[1]||reels[1]===reels[2]||reels[0]===reels[2]){
       win=bet*2;
       print("Two of a kind!");
@@ -574,7 +574,7 @@ function startHoldem() {
   currentGame="holdem";
   clearScreen();
   print("=== TEXAS HOLD'EM ===");
-  if (money<=0){ print("You're broke! Maybe a loan?"); return; }
+  if (money<=0){ print("You're lowkey broke get a loan lil bro"); return; }
   updateMoneyDisplay();
   hDeck=getDeck();
   hPlayerHand=[hDeck.pop(),hDeck.pop()];
@@ -783,7 +783,7 @@ function startCubeRace() {
   currentGame="cuberace";
   clearScreen();
   print("=== CUBE RACE ===");
-  if (money<=0){ print("You're broke! Maybe a loan?"); return; }
+  if (money<=0){ print("You're poor as hell get a loan"); return; }
   updateMoneyDisplay();
   cubeBetColors=[];
   askCubeBetColors();
@@ -791,10 +791,10 @@ function startCubeRace() {
 
 function askCubeBetColors() {
   print("Cubes: Red, Blue, Green, Yellow");
-  print("Bet up to 3 cubes. More coverage = lower multiplier.");
-  ask("Enter cubes (e.g. RED,BLUE) or QUIT:", val=>{
+  print("Bet on upto 3 cubes. More coverage = lower multiplier.");
+  ask("Enter ur lucky cubes (e.g. RED,BLUE) or QUIT:", val=>{
     val=(val||"").trim().toUpperCase();
-    if (val==="QUIT"){ clearScreen(); print("Leaving Cube Race."); currentGame=null; return; }
+    if (val==="QUIT"){ clearScreen(); print("if u quit ur less likely to earn ur money just saying."); currentGame=null; return; }
     const parts=val.split(",").map(s=>s.trim()).filter(Boolean);
     if (parts.length===0||parts.length>3){ askCubeBetColors(); return; }
     const map={RED:"Red",BLUE:"Blue",GREEN:"Green",YELLOW:"Yellow"};
@@ -862,7 +862,7 @@ function runCubeRace() {
         logoBounceOnWin();
         logRecentWin("Cube Race",win);
       } else {
-        print("Your picks missed this time.");
+        print("Your picks lost this one. Im sure theyll win the next one.");
       }
       updateMoneyDisplay();
       if ((autoBet || autoGamble) && lastCubeBetAmount && lastCubeBetColors && lastCubeBetColors.length && money>=lastCubeBetAmount){
@@ -870,7 +870,7 @@ function runCubeRace() {
         cubeBetColors=[...lastCubeBetColors];
         runCubeRace();
       } else {
-        ask("Bet another race? (Y/N)", v=>{
+        ask("Want to bet on another race? (Y/N)", v=>{
           v=(v||"").trim().toUpperCase();
           if (v==="Y") startCubeRace();
           else { clearScreen(); currentGame=null; }
@@ -888,15 +888,15 @@ function startRussianRoulette() {
   currentGame="roulette_russian";
   clearScreen();
   print("=== RUSSIAN ROULETTE ===");
-  if (money<=0){ print("You're broke! Maybe a loan."); return; }
+  if (money<=0){ print("Sorry we dont speak poor comeback when u have money."); return; }
   updateMoneyDisplay();
   askRouletteBet();
 }
 
 function askRouletteBet() {
-  ask(`How much do you stake? (1-${money}, or QUIT)`, val=>{
+  ask(`How much do you gonna stake? (1-${money}, or QUIT)`, val=>{
     val=(val||"").trim().toUpperCase();
-    if (val==="QUIT"){ clearScreen(); print("Leaving Russian Roulette."); currentGame=null; return; }
+    if (val==="QUIT"){ clearScreen(); print("Why you leave u coward."); currentGame=null; return; }
     if (!/^\d+$/.test(val)){ askRouletteBet(); return; }
     const bet=parseInt(val,10);
     if (bet<1||bet>money){ askRouletteBet(); return; }
@@ -909,7 +909,7 @@ function runRussianRoulette() {
   money-=rrBet;
   updateMoneyDisplay();
   clearScreen();
-  print("Spinning the cylinder...");
+  print("Spinning the gun...");
   let frames=[
     "   _______\n  /       \\\n |  O   O  |\n |    •    |\n  \\  ___  /\n   \\_____/",
     "   _______\n  /       \\\n |  O   O  |\n |   •     |\n  \\  ___  /\n   \\_____/",
@@ -918,7 +918,7 @@ function runRussianRoulette() {
   let i=0;
   function animateSpin(){
     clearScreen();
-    print("Spinning the cylinder...");
+    print("Spinning the gun...");
     print("");
     print(frames[i%frames.length]);
     i++;
@@ -971,7 +971,7 @@ function startRoulette() {
   currentGame="roulette";
   clearScreen();
   print("=== ROULETTE ===");
-  if (money<=0){ print("You're broke! Maybe a loan?"); return; }
+  if (money<=0){ print("no money no entry"); return; }
   updateMoneyDisplay();
   if (autoBet && lastRouletteBet && money>=lastRouletteBet){
     rouletteBetAmount=lastRouletteBet;
@@ -1052,7 +1052,7 @@ function finishRoulette(num) {
     money+=win;
     logoBounceOnWin();
     logRecentWin("Roulette",win);
-  } else print("No win this spin.");
+  } else print("Sorry No win this time.");
   updateMoneyDisplay();
   if ((autoBet || autoGamble) && lastRouletteBet && money>=lastRouletteBet){
     rouletteBetAmount=lastRouletteBet;
@@ -1076,8 +1076,8 @@ let plinkoActiveBalls = [];
 function startPlinko() {
   currentGame = "plinko";
   clearScreen();
-  print("=== PLINKO ===");
-  if (money <= 0) { print("You're broke! Maybe a loan?"); return; }
+  print(" PLINKO ")
+  if (money <= 0) { print("Hqve u thought about a loan?"); return; }
   updateMoneyDisplay();
 
   if ((autoBet || autoGamble) && lastPlinkoBet && money >= lastPlinkoBet) {
@@ -1114,7 +1114,7 @@ function showPlinkoUI() {
 
   document.getElementById("plinko-drop").onclick = () => spawnPlinkoBall();
 
-  // Draw initial board
+  
   drawPlinkoBoard([]);
 
   if ((autoBet || autoGamble) && money >= plinkoBet) {
@@ -1144,7 +1144,7 @@ function animatePlinko() {
 
   for (let ball of plinkoActiveBalls) {
     if (ball.row < 10) {
-      // Move ball
+      
       if (ball.row % 2 === 1) {
         ball.col += Math.random() < 0.5 ? -1 : 1;
       }
@@ -1153,10 +1153,10 @@ function animatePlinko() {
     }
   }
 
-  // Draw board with all balls
+  
   drawPlinkoBoard(plinkoActiveBalls);
 
-  // Check finished balls
+  
   const finished = plinkoActiveBalls.filter(b => b.row >= 10);
   const stillFalling = plinkoActiveBalls.filter(b => b.row < 10);
 
@@ -1174,11 +1174,11 @@ function animatePlinko() {
 function drawPlinkoBoard(balls) {
   clearScreen();
 
-  // DROP button stays above
+  
   print("Middle Is Win! Sides Are Loose(This is still in development xd");
   print("");
 
-  // Draw 10 rows
+  
   for (let r = 0; r < 10; r++) {
     let line = "";
     for (let c = 0; c <= 8; c++) {
@@ -1191,7 +1191,7 @@ function drawPlinkoBoard(balls) {
   }
 
   print("");
-  print("L,W,L");
+  print("L_W_L");
 }
 
 function resolvePlinkoBall(col) {
