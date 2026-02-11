@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Leo's Epic Casino – Retro ASCII Casino</title>
+<meta name="description" content="Leo's Epic Casino – addictive retro ASCII Blackjack, Slots, Texas Hold'em, cube racing, Russian roulette and a live money leaderboard.">
+<meta name="keywords" content="Leo's Epic Casino, blackjack, slots, texas holdem, cube race, russian roulette, sports betting, ascii cards, casino, leaderboard">
+<meta name="author" content="Leo">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="Leo's Epic Casino – Retro ASCII Casino">
+<meta property="og:description" content="Play Blackjack, Slots, Texas Hold'em, cube racing and Russian roulette with loans, debt and a live money leaderboard.">
+<style>
+  :root {
+    --border-color: #000;
+  }
+  body {
+    background: #ffffff;
+    color: #000000;
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+  }
+  #intro-screen {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    white-space: pre;
+    font-family: monospace;
+    font-size: clamp(0.6rem, 2vw, 1rem);
+    transition: opacity 0.6s ease-out;
+  }
+  #auto-bet-btn {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    background: #ffffff;
+    border: 1px solid #000;
+    padding: 4px 8px;
+    font-family: monospace;
+    cursor: pointer;
+    z-index: 99999;
+    user-select: none;
+  }
+  #auto-bet-btn:hover {
+    background: #000;
+    color: #fff;
+  }
+  #outer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 8px;
+  }
+  #game-container {
+    font-size: clamp(0.7rem, 1.2vw, 1rem);
+    line-height: 1.2;
+  }
+  #logo-wrapper {
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  #logo {
+    white-space: pre;
+    font-weight: bold;
+    color: #000000;
+    position: relative;
+    opacity: 1;
+  }
+  #top-bar {
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 4px 0;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+  }
+  #menu {
+    margin: 4px 0 6px 0;
+  }
+  #menu button {
+    margin: 2px 4px 2px 0;
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  #menu button:hover {
+    background: #000000;
+    color: #ffffff;
+  }
+  #output {
+    padding-top: 4px;
+    max-height: 60vh;
+    overflow-y: auto;
+    border-top: 1px solid #000;
+    white-space: pre;
+  }
+  #input-area {
+    margin-top: 4px;
+  }
+  #input-area input {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  #input-area button {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+    font-family: monospace;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .flash-yellow {
+    background: #ffff99;
+  }
+  .hidden {
+    display: none;
+  }
+  .logo-bounce {
+    animation: logoBounce 0.6s ease-out;
+  }
+  @keyframes logoBounce {
+    0%   { transform: translateY(0); }
+    30%  { transform: translateY(-8px); }
+    60%  { transform: translateY(3px); }
+    100% { transform: translateY(0); }
+  }
+  #leaderboard {
+    margin-top: 4px;
+    border-top: 1px dashed #000;
+    padding-top: 4px;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+  }
+  @media (max-width: 600px) {
+    #logo {
+      font-size: 0.8rem;
+    }
+    #output {
+      max-height: 50vh;
+    }
+  }
+</style>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    child,
+    query,
+    orderByChild,
+    limitToFirst
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB4jeu4v8eeQ8ENBjcMEn8riT5FDOhAgtU",
+    authDomain: "antianti-69313.firebaseapp.com",
+    projectId: "antianti-69313",
+    storageBucket: "antianti-69313.firebasestorage.app",
+    messagingSenderId: "147709968684",
+    appId: "1:147709968684:web:d2cd16b68e8c9fb65eec89",
+    measurementId: "G-TB56T5Q8XC",
+    databaseURL: "https://antianti-69313-default-rtdb.firebaseio.com"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  window._rtdb = db;
+  window._rtdbReady = true;
+</script>
+</head>
+<body>
+<div id="intro-screen"></div>
+<div id="auto-bet-btn">AUTO BET: OFF</div>
+
+<div id="outer">
+  <div id="game-container">
+    <div id="logo-wrapper">
+      <div id="logo"></div>
+    </div>
+    <div id="top-bar" class="hidden">
+      Player: <span id="player-name-display">?</span> |
+      Money: $<span id="money-display">0</span> |
+      Debt: $<span id="debt-display">0</span>
+    </div>
+    <div id="menu" class="hidden">
+      <button onclick="startBlackjack()">Blackjack</button>
+      <button onclick="startSlots()">Slot Machine</button>
+      <button onclick="startHoldem()">Texas Hold'em</button>
+      <button onclick="startCubeRace()">Cube Race (Sports Betting)</button>
+      <button onclick="startRussianRoulette()">Russian Roulette</button>
+      <button onclick="getLoan()">Get Loan</button>
+      <button onclick="payLoan()">Pay Loan</button>
+    </div>
+    <div id="output"></div>
+    <div id="input-area"></div>
+    <div id="leaderboard" class="hidden"></div>
+  </div>
+</div>
+
+<script>
+let money = 5000;
+let debt = 0;
+let currentGame = null;
+let playerName = null;
+
+let autoBet = false;
+let autoBetInterval = null;
+let lastBlackjackBet = null;
+let lastSlotBet = null;
+let lastCubeBetAmount = null;
+let lastCubeBetColors = null;
+let lastRouletteBet = null;
+
+function print(text = "") {
+  const out = document.getElementById("output");
+  out.textContent += text + "\n";
+  out.scrollTop = out.scrollHeight;
+}
+function clearScreen() {
+  document.getElementById("output").textContent = "";
+}
+
+function saveState() {
+  const data = { money, debt, playerName };
+  localStorage.setItem("leosEpicCasinoState", JSON.stringify(data));
+  updateLeaderboard();
+}
+function loadState() {
+  const raw = localStorage.getItem("leosEpicCasinoState");
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    if (typeof data.money === "number") money = data.money;
+    if (typeof data.debt === "number") debt = data.debt;
+    if (typeof data.playerName === "string") playerName = data.playerName;
+  } catch(e) {}
+}
+
+function updateMoneyDisplay() {
+  document.getElementById("money-display").textContent = money;
+  document.getElementById("debt-display").textContent = debt;
+  if (playerName) document.getElementById("player-name-display").textContent = playerName;
+  saveState();
+}
+
+function ask(promptText, callback) {
+  const inputArea = document.getElementById("input-area");
+  inputArea.innerHTML = "";
+  const label = document.createElement("div");
+  label.textContent = promptText;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.style.marginTop = "4px";
+  const btn = document.createElement("button");
+  btn.textContent = "OK";
+  btn.style.marginLeft = "4px";
+  btn.onclick = () => {
+    const val = input.value;
+    inputArea.innerHTML = "";
+    callback(val);
+  };
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter") btn.click();
+  });
+  inputArea.appendChild(label);
+  inputArea.appendChild(input);
+  inputArea.appendChild(btn);
+  input.focus();
+}
+
+const logoText = `
+leos Epic Casino _               
+                   (_)           
+        ___ __ _ ___ _ _ __   ___
+       / __/ _\` / __| | '_ \\ / _ \\
+      | (_| (_| \\__ \\ | | | | (_) |
+       \\___\\__,_|___/_|_| |_|\\___/
+`;
+
+function runIntro() {
+  const intro = document.getElementById("intro-screen");
+  intro.textContent = logoText;
+  let x = -80;
+  let vx = 2;
+  let bounces = 0;
+
+  function slide() {
+    intro.style.transform = "translateX(" + x + "px)";
+    x += vx;
+
+    if (x >= 0) {
+      x = 0;
+      if (bounces < 1) {
+        vx = -vx * 0.5;
+        bounces++;
+      } else {
+        intro.style.transform = "translateX(0)";
+        intro.classList.add("logo-bounce");
+        setTimeout(() => {
+          intro.style.opacity = "0";
+          setTimeout(() => intro.remove(), 600);
+          showMainUI();
+        }, 500);
+        return;
+      }
+    }
+    if (x < -80 && bounces > 0) {
+      x = -80;
+      vx = -vx;
+    }
+    requestAnimationFrame(slide);
+  }
+  requestAnimationFrame(slide);
+}
+
+function showMainUI() {
+  const logoEl = document.getElementById("logo");
+  logoEl.textContent = logoText;
+  document.getElementById("top-bar").classList.remove("hidden");
+  document.getElementById("menu").classList.remove("hidden");
+  document.getElementById("leaderboard").classList.remove("hidden");
+  ensureName();
+}
+
+function logoBounceOnce() {
+  const logoEl = document.getElementById("logo");
+  logoEl.classList.remove("logo-bounce");
+  void logoEl.offsetWidth;
+  logoEl.classList.add("logo-bounce");
+}
+function logoBounceOnWin() {
+  logoBounceOnce();
+}
+
+function ensureName() {
+  if (!playerName) {
+    ask("Enter your casino nickname:", name => {
+      name = (name || "").trim();
+      if (!name) return ensureName();
+      playerName = name;
+      updateMoneyDisplay();
+      refreshLeaderboardView();
+      clearScreen();
+      print("Welcome to Leo's Epic Casino, " + playerName + "!");
+      print("------------------------------");
+    });
+  } else {
+    updateMoneyDisplay();
+    refreshLeaderboardView();
+    clearScreen();
+    print("Welcome back to Leo's Epic Casino, " + playerName + "!");
+    print("------------------------------");
+  }
+}
+
+/* CARD / DECK HELPERS */
+const SUITS = ["♥","♦","♠","♣"];
+const RANKS = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+
+function getDeck() {
+  const deck = [];
+  for (let s of SUITS) {
+    for (let r of RANKS) {
+      deck.push({rank: r, suit: s});
+    }
+  }
+  shuffle(deck);
+  return deck;
+}
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+function cardValue(rank) {
+  if (rank === "A") return 11;
+  if (["K","Q","J"].includes(rank)) return 10;
+  return parseInt(rank, 10);
+}
+function handValueBlackjack(cards) {
+  let value = 0;
+  let aces = 0;
+  for (let c of cards) {
+    if (c.rank === "A") aces++;
+    else value += cardValue(c.rank);
+  }
+  value += aces;
+  for (let i = 0; i < aces; i++) {
+    if (value + 10 <= 21) value += 10;
+  }
+  return value;
+}
+function displayCards(cards, hideFirst=false) {
+  const BACKSIDE = "backside";
+  const rows = ["","","","",""];
+  const list = hideFirst ? [BACKSIDE, ...cards.slice(1)] : cards;
+  for (let card of list) {
+    rows[0] += " ___  ";
+    if (card === BACKSIDE) {
+      rows[1] += "|## | ";
+      rows[2] += "|###| ";
+      rows[3] += "|_##| ";
+    } else {
+      const rank = card.rank;
+      const suit = card.suit;
+      rows[1] += "|" + rank.padEnd(2," ") + " | ";
+      rows[2] += "| " + suit + " | ";
+      rows[3] += "|_" + rank.padStart(2,"_") + "| ";
+    }
+  }
+  return rows.join("\n");
+}
+
+/* BLACKJACK */
+let bjDeck, bjPlayer, bjDealer, bjBet;
+
+function startBlackjack() {
+  currentGame = "blackjack";
+  clearScreen();
+  print("=== BLACKJACK ===");
+  if (money <= 0) {
+    print("You're broke! Maybe a loan?");
+    return;
+  }
+  updateMoneyDisplay();
+  askBetBlackjack();
+}
+
+function askBetBlackjack() {
+  ask(`How much do you bet? (1-${money}, or QUIT)`, val => {
+    val = (val || "").trim().toUpperCase();
+    if (val === "QUIT") {
+      clearScreen();
+      print("Leaving Blackjack.");
+      return;
+    }
+    if (!/^\d+$/.test(val)) {
+      askBetBlackjack();
+      return;
+    }
+    const bet = parseInt(val,10);
+    if (bet < 1 || bet > money) {
+      askBetBlackjack();
+      return;
+    }
+    bjBet = bet;
+    lastBlackjackBet = bet;
+    bjDeck = getDeck();
+    bjDealer = [bjDeck.pop(), bjDeck.pop()];
+    bjPlayer = [bjDeck.pop(), bjDeck.pop()];
+    blackjackLoop();
+  });
+}
+
+function blackjackLoop() {
+  clearScreen();
+  print(`Money: $${money}   Debt: $${debt}`);
+  print(`Bet: ${bjBet}`);
+  const playerVal = handValueBlackjack(bjPlayer);
+  print("DEALER: ???");
+  print(displayCards(bjDealer, true));
+  print("");
+  print(`PLAYER: ${playerVal}`);
+  print(displayCards(bjPlayer, false));
+  if (playerVal > 21) {
+    endBlackjackRound();
+    return;
+  }
+  let moves = ["(H)it","(S)tand"];
+  if (bjPlayer.length === 2 && money - bjBet > 0) moves.push("(D)ouble down");
+  ask(moves.join(", ") + " >", val => {
+    val = (val || "").trim().toUpperCase();
+    if (val === "H" || val === "S" || (val === "D" && moves.includes("(D)ouble down"))) {
+      handleBlackjackMove(val);
+    } else {
+      blackjackLoop();
+    }
+  });
+}
+
+function handleBlackjackMove(move) {
+  if (move === "D") {
+    const maxAdd = Math.min(bjBet, money - bjBet);
+    ask(`How much to increase bet? (1-${maxAdd})`, val => {
+      if (!/^\d+$/.test(val || "")) {
+        blackjackLoop();
+        return;
+      }
+      const add = parseInt(val,10);
+      if (add < 1 || add > maxAdd) {
+        blackjackLoop();
+        return;
+      }
+      bjBet += add;
+      lastBlackjackBet = bjBet;
+      print(`Bet increased to ${bjBet}.`);
+      hitAndMaybeDealer(true);
+    });
+  } else if (move === "H") {
+    hitAndMaybeDealer(false);
+  } else if (move === "S") {
+    dealerTurnBlackjack();
+  }
+}
+
+function hitAndMaybeDealer(fromDouble) {
+  bjPlayer.push(bjDeck.pop());
+  const val = handValueBlackjack(bjPlayer);
+  if (val > 21) {
+    endBlackjackRound();
+  } else if (fromDouble) {
+    dealerTurnBlackjack();
+  } else {
+    blackjackLoop();
+  }
+}
+
+function dealerTurnBlackjack() {
+  while (handValueBlackjack(bjDealer) < 17) {
+    bjDealer.push(bjDeck.pop());
+  }
+  endBlackjackRound();
+}
+
+function endBlackjackRound() {
+  clearScreen();
+  const playerVal = handValueBlackjack(bjPlayer);
+  const dealerVal = handValueBlackjack(bjDealer);
+  print("DEALER: " + dealerVal);
+  print(displayCards(bjDealer,false));
+  print("");
+  print("PLAYER: " + playerVal);
+  print(displayCards(bjPlayer,false));
+  if (playerVal > 21) {
+    print("You busted! You lost!");
+    money -= bjBet;
+  } else if (dealerVal > 21) {
+    print(`Dealer busts! You win $${bjBet}!`);
+    money += bjBet;
+    logoBounceOnWin();
+  } else if (playerVal < dealerVal) {
+    print("You lost!");
+    money -= bjBet;
+  } else if (playerVal > dealerVal) {
+    print(`You won $${bjBet}!`);
+    money += bjBet;
+    logoBounceOnWin();
+  } else {
+    print("It's a tie, the bet is returned to you.");
+  }
+  updateMoneyDisplay();
+  ask("Press Enter to return to menu...", () => {
+    clearScreen();
+    currentGame = null;
+  });
+}
+
+/* SLOTS */
+const slotSymbols = ["BAR","7","CHERRY","LEMON","STAR","BELL"];
+
+function startSlots() {
+  currentGame = "slots";
+  clearScreen();
+  print("=== SLOT MACHINE ===");
+  print("Hit a streak, chase the rush.");
+  if (money <= 0) {
+    print("You're broke! Maybe a loan?");
+    return;
+  }
+  updateMoneyDisplay();
+  askSlotBet();
+}
+
+function askSlotBet() {
+  ask(`How much do you bet? (1-${money}, or QUIT)`, val => {
+    val = (val || "").trim().toUpperCase();
+    if (val === "QUIT") {
+      clearScreen();
+      print("Leaving the slot machine.");
+      return;
+    }
+    if (!/^\d+$/.test(val)) {
+      askSlotBet();
+      return;
+    }
+    const bet = parseInt(val,10);
+    if (bet < 1 || bet > money) {
+      askSlotBet();
+      return;
+    }
+    lastSlotBet = bet;
+    spinSlots(bet);
+  });
+}
+
+function spinSlots(bet) {
+  clearScreen();
+  print("Spinning... feel the reels...");
+  const reels = [];
+  for (let i = 0; i < 3; i++) {
+    reels.push(slotSymbols[Math.floor(Math.random()*slotSymbols.length)]);
+  }
+  setTimeout(() => {
+    clearScreen();
+    print("+--------+--------+--------+");
+    print(`| ${reels[0].padEnd(6," ")} | ${reels[1].padEnd(6," ")} | ${reels[2].padEnd(6," ")} |`);
+    print("+--------+--------+--------+");
+    let win = 0;
+    if (reels[0] === reels[1] && reels[1] === reels[2]) {
+      win = bet * 10;
+      print("JACKPOT! Three of a kind! The crowd goes wild.");
+    } else if (reels[0] === reels[1] || reels[1] === reels[2] || reels[0] === reels[2]) {
+      win = bet * 2;
+      print("Nice! Two of a kind! Keep it rolling.");
+    } else {
+      print("No win this time. One more spin?");
+    }
+    if (win > 0) {
+      money += win;
+      slotWinAnimation(() => {
+        logoBounceOnWin();
+        updateMoneyDisplay();
+        ask("Play again? (Y/N)", v => {
+          v = (v || "").trim().toUpperCase();
+          if (v === "Y") startSlots();
+          else {
+            clearScreen();
+            currentGame = null;
+          }
+        });
+      });
+    } else {
+      money -= bet;
+      updateMoneyDisplay();
+      ask("Play again? (Y/N)", v => {
+        v = (v || "").trim().toUpperCase();
+        if (v === "Y") startSlots();
+        else {
+          clearScreen();
+          currentGame = null;
+        }
+      });
+    }
+  }, 500);
+}
+
+function slotWinAnimation(done) {
+  const container = document.getElementById("outer");
+  let flashes = 0;
+  function flash() {
+    container.classList.add("flash-yellow");
+    setTimeout(() => {
+      container.classList.remove("flash-yellow");
+      flashes++;
+      if (flashes < 3) {
+        setTimeout(flash, 100);
+      } else {
+        confettiAnimation(done);
+      }
+    }, 100);
+  }
+  flash();
+}
+
+function confettiAnimation(done) {
+  clearScreen();
+  let rows = 0;
+  function frame() {
+    let line = "";
+    const chars = ["*",".","+","x","o"];
+    for (let i = 0; i < 50; i++) {
+      if (Math.random() < 0.18) {
+        line += chars[Math.floor(Math.random()*chars.length)];
+      } else {
+        line += " ";
+      }
+    }
+    print(line);
+    rows++;
+    if (rows < 20) {
+      setTimeout(frame, 60);
+    } else {
+      setTimeout(() => {
+        clearScreen();
+        done();
+      }, 200);
+    }
+  }
+  frame();
+}
+
+/* TEXAS HOLD'EM */
+let hDeck, hPlayerHand, hDealerHand, hCommunity, hPot;
+
+function startHoldem() {
+  currentGame = "holdem";
+  clearScreen();
+  print("=== TEXAS HOLD'EM ===");
+  print("Heads-up vs dealer. Play it smart.");
+  if (money <= 0) {
+    print("You're broke! Maybe a loan?");
+    return;
+  }
+  updateMoneyDisplay();
+  hDeck = getDeck();
+  hPlayerHand = [hDeck.pop(), hDeck.pop()];
+  hDealerHand = [hDeck.pop(), hDeck.pop()];
+  hCommunity = [];
+  hPot = 0;
+  preflopBetting();
+}
+
+function preflopBetting() {
+  clearScreen();
+  print("=== PRE-FLOP ===");
+  print("Your hand:");
+  print(displayCards(hPlayerHand,false));
+  print("");
+  print(`Money: $${money}   Pot: $${hPot}`);
+  ask("Pre-flop bet amount (0 to check, or QUIT):", val => {
+    val = (val || "").trim().toUpperCase();
+    if (val === "QUIT") {
+      clearScreen();
+      print("Leaving Texas Hold'em.");
+      return;
+    }
+    if (!/^\d+$/.test(val)) {
+      preflopBetting();
+      return;
+    }
+    const bet = parseInt(val,10);
+    if (bet < 0 || bet > money) {
+      preflopBetting();
+      return;
+    }
+    money -= bet;
+    hPot += bet;
+    const dealerStrength = evaluateHoldemHand(hDealerHand, []);
+    if (bet > 0 && dealerStrength.score > 0.3) {
+      hPot += bet;
+      print("Dealer calls your bet.");
+    } else if (bet > 0 && dealerStrength.score < 0.15) {
+      print("Dealer folds. You scoop the pot.");
+      money += hPot;
+      logoBounceOnWin();
+      updateMoneyDisplay();
+      ask("Press Enter to return to menu...", () => {
+        clearScreen();
+        currentGame = null;
+      });
+      return;
+    } else {
+      print("Both check.");
+    }
+    setTimeout(flopRound, 700);
+  });
+}
+
+function flopRound() {
+  hCommunity.push(hDeck.pop(), hDeck.pop(), hDeck.pop());
+  bettingRound("FLOP");
+}
+
+function turnRound() {
+  hCommunity.push(hDeck.pop());
+  bettingRound("TURN");
+}
+
+function riverRound() {
+  hCommunity.push(hDeck.pop());
+  bettingRound("RIVER");
+}
+
+function bettingRound(stage) {
+  clearScreen();
+  print(`=== ${stage} ===`);
+  print("Your hand:");
+  print(displayCards(hPlayerHand,false));
+  print("");
+  print("Community cards:");
+  print(displayCards(hCommunity,false));
+  print("");
+  print(`Money: $${money}   Pot: $${hPot}`);
+  ask("Bet amount (0 to check, or QUIT):", val => {
+    val = (val || "").trim().toUpperCase();
+    if (val === "QUIT") {
+      clearScreen();
+      print("Leaving Texas Hold'em.");
+      return;
+    }
+    if (!/^\d+$/.test(val)) {
+      bettingRound(stage);
+      return;
+    }
+    const bet = parseInt(val,10);
+    if (bet < 0 || bet > money) {
+      bettingRound(stage);
+      return;
+    }
+    money -= bet;
+    hPot += bet;
+    const dealerStrength = evaluateHoldemHand(hDealerHand, hCommunity);
+    if (bet > 0 && dealerStrength.score > 0.45) {
+      hPot += bet;
+      print("Dealer calls. Pot is getting juicy.");
+    } else if (bet > 0 && dealerStrength.score < 0.2) {
+      print("Dealer folds. You drag the pot.");
+      money += hPot;
+      logoBounceOnWin();
+      updateMoneyDisplay();
+      ask("Press Enter to return to menu...", () => {
+        clearScreen();
+        currentGame = null;
+      });
+      return;
+    } else {
+      print("Both check.");
+    }
+    if (stage === "FLOP") setTimeout(turnRound, 700);
+    else if (stage === "TURN") setTimeout(riverRound, 700);
+    else showdown();
+  });
+}
+
+function showdown() {
+  clearScreen();
+  print("=== SHOWDOWN ===");
+  print("Your hand:");
+  print(displayCards(hPlayerHand,false));
+  print("");
+  print("Dealer's hand:");
+  print(displayCards(hDealerHand,false));
+  print("");
+  print("Community cards:");
+  print(displayCards(hCommunity,false));
+  print("");
+  const playerEval = evaluateHoldemHand(hPlayerHand, hCommunity);
+  const dealerEval = evaluateHoldemHand(hDealerHand, hCommunity);
+  print(`Your hand rank: ${playerEval.label}`);
+  print(`Dealer hand rank: ${dealerEval.label}`);
+  if (playerEval.score > dealerEval.score) {
+    print(`You win the pot of $${hPot}!`);
+    money += hPot;
+    logoBounceOnWin();
+  } else if (playerEval.score < dealerEval.score) {
+    print("Dealer wins the pot.");
+  } else {
+    print("It's a tie. Pot is split.");
+    money += Math.floor(hPot/2);
+  }
+  updateMoneyDisplay();
+  ask("Press Enter to return to menu...", () => {
+    clearScreen();
+    currentGame = null;
+  });
+}
+
+function evaluateHoldemHand(hand, community) {
+  const cards = [...hand, ...community];
+  const counts = {};
+  for (let c of cards) {
+    counts[c.rank] = (counts[c.rank] || 0) + 1;
+  }
+  const values = Object.values(counts).sort((a,b)=>b-a);
+  let label = "High Card";
+  let score = 0.1;
+  if (values[0] === 4) {
+    label = "Four of a Kind";
+    score = 0.9;
+  } else if (values[0] === 3 && values[1] >= 2) {
+    label = "Full House";
+    score = 0.8;
+  } else if (values[0] === 3) {
+    label = "Three of a Kind";
+    score = 0.6;
+  } else if (values[0] === 2 && values[1] === 2) {
+    label = "Two Pair";
+    score = 0.5;
+  } else if (values[0] === 2) {
+    label = "One Pair";
+    score = 0.3;
+  }
+  const ranksSorted = cards.map(c=>RANKS.indexOf(c.rank)).sort((a,b)=>a-b);
+  let straight = false;
+  let run = 1;
+  for (let i=1;i<ranksSorted.length;i++){
+    if (ranksSorted[i] === ranksSorted[i-1]+1) {
+      run++;
+      if (run >= 5) straight = true;
+    } else if (ranksSorted[i] !== ranksSorted[i-1]) {
+      run = 1;
+    }
+  }
+  const suitCounts = {};
+  for (let c of cards) {
+    suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1;
+  }
+  const flush = Object.values(suitCounts).some(v=>v>=5);
+  if (flush && straight) {
+    label = "Straight Flush";
+    score = 1.0;
+  } else if (flush && score < 0.7) {
+    label = "Flush";
+    score = Math.max(score,0.7);
+  } else if (straight && score < 0.65) {
+    label = "Straight";
+    score = Math.max(score,0.65);
+  }
+  return {score, label};
+}
+
+/* CUBE RACE */
+const cubeColors = ["Red","Blue","Green","Yellow"];
+let cubeBetColors = [];
+let cubeBetAmount = 0;
+
+function startCubeRace() {
+  currentGame = "cuberace";
+  clearScreen();
+  print("=== CUBE RACE – SPORTS BETTING ===");
+  print("Four coloured cubes race to the finish.");
+  if (money <= 0) {
+    print("You're broke! Maybe a loan?");
+    return;
+  }
+  updateMoneyDisplay();
+  cubeBetColors = [];
+  askCubeBetColors();
+}
+
+function askCubeBetColors() {
+  print("Cubes: Red, Blue, Green, Yellow");
+  print("You can bet on up to 3 cubes. The more you cover, the lower the multiplier.");
+  ask("Enter cubes separated by commas (e.g. RED,BLUE) or QUIT:", val => {
+    val = (val || "").trim().toUpperCase();
+    if (val === "QUIT") {
+      clearScreen();
+      print("Leaving Cube Race.");
+      return;
+    }
+    const parts = val.split(",").map(s => s.trim()).filter(Boolean);
+    if (parts.length === 0 || parts.length > 3) {
+      askCubeBetColors();
+      return;
+    }
+    const map = {RED:"Red",BLUE:"Blue",GREEN:"Green",YELLOW:"Yellow"};
+    const chosen = [];
+    for (let p of parts) {
+      if (!map[p]) {
+        askCubeBetColors();
+        return;
+      }
+      if (!chosen.includes(map[p])) chosen.push(map[p]);
+    }
+    if (chosen.length === 0 || chosen.length > 3) {
+      askCubeBetColors();
+      return;
+    }
+    cubeBetColors = chosen;
+    askCubeBetAmount();
+  });
+}
+
+function askCubeBetAmount() {
+  ask(`How much do you bet on ${cubeBetColors.join(", ")}? (1-${money})`, val => {
+    val = (val || "").trim();
+    if (!/^\d+$/.test(val)) {
+      askCubeBetAmount();
+      return;
+    }
+    const amt = parseInt(val,10);
+    if (amt < 1 || amt > money) {
+      askCubeBetAmount();
+      return;
+    }
+    cubeBetAmount = amt;
+    lastCubeBetAmount = amt;
+    lastCubeBetColors = [...cubeBetColors];
+    runCubeRace();
+  });
+}
+
+function cubeMultiplier() {
+  if (cubeBetColors.length === 1) return 3.0;
+  if (cubeBetColors.length === 2) return 2.0;
+  return 1.5;
+}
+
+function runCubeRace() {
+  money -= cubeBetAmount;
+  updateMoneyDisplay();
+  clearScreen();
+  print("The cubes are lining up at the start...");
+  const trackLength = 25;
+  const positions = {Red:0,Blue:0,Green:0,Yellow:0};
+  function drawTrack() {
+    clearScreen();
+    for (let color of cubeColors) {
+      const pos = positions[color];
+      const line = color.padEnd(6," ") + "|" + " ".repeat(pos) + "■" + " ".repeat(Math.max(0,trackLength-pos)) + "|";
+      print(line);
+    }
+  }
+  function step() {
+    for (let color of cubeColors) {
+      positions[color] += Math.random() < 0.6 ? 1 : 0;
+      if (positions[color] > trackLength) positions[color] = trackLength;
+    }
+    drawTrack();
+    const finished = cubeColors.filter(c => positions[c] >= trackLength);
+    if (finished.length > 0) {
+      const winner = finished[Math.floor(Math.random()*finished.length)];
+      print("");
+      print("Winner: " + winner + " cube!");
+      if (cubeBetColors.includes(winner)) {
+        const mult = cubeMultiplier();
+        const win = Math.round(cubeBetAmount * mult);
+        print(`You covered the winner! Multiplier x${mult.toFixed(1)} – you win $${win}.`);
+        money += win;
+        logoBounceOnWin();
+      } else {
+        print("Your picks missed this time.");
+      }
+      updateMoneyDisplay();
+      ask("Bet another race? (Y/N)", v => {
+        v = (v || "").trim().toUpperCase();
+        if (v === "Y") startCubeRace();
+        else {
+          clearScreen();
+          currentGame = null;
+        }
+      });
+    } else {
+      setTimeout(step, 120);
+    }
+  }
+  setTimeout(step, 600);
+}
+
+/* RUSSIAN ROULETTE */
+let rrBet = 0;
+
+function startRussianRoulette() {
+  currentGame = "roulette";
+  clearScreen();
+  print("=== RUSSIAN ROULETTE ===");
+  print("Six chambers. One bullet. Big risk, big reward.");
+  if (money <= 0) {
+    print("You're broke! Maybe a loan?");
+    return;
+  }
+  updateMoneyDisplay();
+  askRouletteBet();
+}
+
+function askRouletteBet() {
+  ask(`How much do you stake? (1-${money}, or QUIT)`, val => {
+    val = (val || "").trim().toUpperCase();
+    if (val === "QUIT") {
+      clearScreen();
+      print("Leaving Russian Roulette.");
+      return;
+    }
+    if (!/^\d+$/.test(val)) {
+      askRouletteBet();
+      return;
+    }
+    const bet = parseInt(val,10);
+    if (bet < 1 || bet > money) {
+      askRouletteBet();
+      return;
+    }
+    rrBet = bet;
+    lastRouletteBet = bet;
+    runRussianRoulette();
+  });
+}
+
+function runRussianRoulette() {
+  money -= rrBet;
+  updateMoneyDisplay();
+  clearScreen();
+  print("Spinning the cylinder...");
+  let frames = [
+    "   _______\n  /       \\\n |  O   O  |\n |    •    |\n  \\  ___  /\n   \\_____/",
+    "   _______\n  /       \\\n |  O   O  |\n |   •     |\n  \\  ___  /\n   \\_____/",
+    "   _______\n  /       \\\n |  O   O  |\n |     •   |\n  \\  ___  /\n   \\_____/"
+  ];
+  let i = 0;
+  function animateSpin() {
+    clearScreen();
+    print("Spinning the cylinder...");
+    print("");
+    print(frames[i % frames.length]);
+    i++;
+    if (i < 10) {
+      setTimeout(animateSpin, 120);
+    } else {
+      pullTrigger();
+    }
+  }
+  animateSpin();
+}
+
+function pullTrigger() {
+  const bulletChamber = Math.floor(Math.random()*6);
+  const playerChamber = Math.floor(Math.random()*6);
+  clearScreen();
+  print("You raise the gun...");
+  setTimeout(() => {
+    print("You pull the trigger...");
+    setTimeout(() => {
+      if (playerChamber === bulletChamber) {
+        print("");
+        print("BANG.");
+        print("You lost the stake. The house smiles.");
+      } else {
+        const win = rrBet * 4;
+        print("");
+        print("Click.");
+        print(`You survive. You win $${win}.`);
+        money += win;
+        logoBounceOnWin();
+      }
+      updateMoneyDisplay();
+      ask("Play again? (Y/N)", v => {
+        v = (v || "").trim().toUpperCase();
+        if (v === "Y") startRussianRoulette();
+        else {
+          clearScreen();
+          currentGame = null;
+        }
+      });
+    }, 800);
+  }, 800);
+}
+
+/* LOANS */
+function getLoan() {
+  currentGame = "loan";
+  clearScreen();
+  print("=== LOAN OFFICE ===");
+  print("Borrow money, build debt. The house always remembers.");
+  ask("How much do you want to borrow? (min 100, max 5000)", val => {
+    val = (val || "").trim();
+    if (!/^\d+$/.test(val)) {
+      clearScreen();
+      print("Invalid amount.");
+      currentGame = null;
+      return;
+    }
+    const amt = parseInt(val,10);
+    if (amt < 100 || amt > 5000) {
+      clearScreen();
+      print("Loan request out of range.");
+      currentGame = null;
+      return;
+    }
+    money += amt;
+    debt += Math.round(amt * 1.1);
+    clearScreen();
+    print(`You received $${amt}. Your debt is now $${debt}.`);
+    logoBounceOnWin();
+    updateMoneyDisplay();
+    currentGame = null;
+  });
+}
+
+function payLoan() {
+  currentGame = "payloan";
+  clearScreen();
+  print("=== PAY LOAN ===");
+  print(`Current debt: $${debt}`);
+  print(`Available money: $${money}`);
+  if (debt <= 0) {
+    print("You have no debt to pay.");
+    currentGame = null;
+    return;
+  }
+  ask("How much do you want to pay toward your debt?", val => {
+    val = (val || "").trim();
+    if (!/^\d+$/.test(val)) {
+      clearScreen();
+      print("Invalid amount.");
+      currentGame = null;
+      return;
+    }
+    const amt = parseInt(val,10);
+    if (amt < 1 || amt > money) {
+      clearScreen();
+      print("You can't pay more than you have.");
+      currentGame = null;
+      return;
+    }
+    const pay = Math.min(amt, debt);
+    money -= pay;
+    debt -= pay;
+    clearScreen();
+    print(`You paid $${pay}. Remaining debt: $${debt}.`);
+    updateMoneyDisplay();
+    currentGame = null;
+  });
+}
+
+/* AUTO BET (ALL GAMES) */
+document.getElementById("auto-bet-btn").onclick = () => {
+  autoBet = !autoBet;
+  document.getElementById("auto-bet-btn").textContent =
+    "AUTO BET: " + (autoBet ? "ON" : "OFF");
+
+  if (autoBet) startAutoBetLoop();
+  else stopAutoBetLoop();
+};
+
+function startAutoBetLoop() {
+  if (autoBetInterval) return;
+
+  autoBetInterval = setInterval(() => {
+    if (!autoBet) return;
+
+    if (currentGame === "blackjack") {
+      if (!bjPlayer || !bjPlayer.length) {
+        if (!lastBlackjackBet) lastBlackjackBet = Math.min(50, money);
+        if (money < lastBlackjackBet) return;
+        bjBet = lastBlackjackBet;
+        bjDeck = getDeck();
+        bjDealer = [bjDeck.pop(), bjDeck.pop()];
+        bjPlayer = [bjDeck.pop(), bjDeck.pop()];
+        blackjackLoop();
+        return;
+      }
+      const val = handValueBlackjack(bjPlayer);
+      if (val < 17) {
+        bjPlayer.push(bjDeck.pop());
+        blackjackLoop();
+      } else {
+        dealerTurnBlackjack();
+      }
+      return;
+    }
+
+    if (currentGame === "slots") {
+      if (!lastSlotBet) lastSlotBet = Math.min(50, money);
+      if (money < lastSlotBet) {
+        autoBet = false;
+        document.getElementById("auto-bet-btn").textContent = "AUTO BET: OFF";
+        clearScreen();
+        print("Auto Bet stopped — not enough money.");
+        stopAutoBetLoop();
+        return;
+      }
+      spinSlots(lastSlotBet);
+      return;
+    }
+
+    if (currentGame === "cuberace") {
+      if (!lastCubeBetAmount || !lastCubeBetColors || !lastCubeBetColors.length) return;
+      if (money < lastCubeBetAmount) {
+        autoBet = false;
+        document.getElementById("auto-bet-btn").textContent = "AUTO BET: OFF";
+        clearScreen();
+        print("Auto Bet stopped — not enough money.");
+        stopAutoBetLoop();
+        return;
+      }
+      cubeBetAmount = lastCubeBetAmount;
+      cubeBetColors = [...lastCubeBetColors];
+      runCubeRace();
+      return;
+    }
+
+    if (currentGame === "roulette") {
+      if (!lastRouletteBet) lastRouletteBet = Math.min(50, money);
+      if (money < lastRouletteBet) {
+        autoBet = false;
+        document.getElementById("auto-bet-btn").textContent = "AUTO BET: OFF";
+        clearScreen();
+        print("Auto Bet stopped — not enough money.");
+        stopAutoBetLoop();
+        return;
+      }
+      rrBet = lastRouletteBet;
+      runRussianRoulette();
+      return;
+    }
+
+  }, 1000);
+}
+
+function stopAutoBetLoop() {
+  clearInterval(autoBetInterval);
+  autoBetInterval = null;
+}
+
+/* LEADERBOARD – REALTIME DATABASE */
+async function updateLeaderboard() {
+  if (!window._rtdbReady || !playerName) return;
+  try {
+    const db = window._rtdb;
+    const path = "leaderboard/" + encodeURIComponent(playerName);
+    await set(ref(db, path), {
+      name: playerName,
+      money: money,
+      debt: debt,
+      updatedAt: Date.now()
+    });
+    refreshLeaderboardView();
+  } catch(e) {
+    // silent
+  }
+}
+
+async function refreshLeaderboardView() {
+  const lb = document.getElementById("leaderboard");
+  if (!window._rtdbReady) {
+    lb.textContent = "Leaderboard: loading...";
+    return;
+  }
+  try {
+    const db = window._rtdb;
+    const q = query(ref(db, "leaderboard"), orderByChild("money"), limitToFirst(50));
+    const snap = await get(q);
+    if (!snap.exists()) {
+      lb.textContent = "Leaderboard (Top by Money)\n--------------------------------\nNo players yet.";
+      return;
+    }
+    const rows = [];
+    snap.forEach(childSnap => {
+      rows.push(childSnap.val());
+    });
+    rows.sort((a,b) => (b.money || 0) - (a.money || 0));
+    const top = rows.slice(0,10);
+    let text = "Leaderboard (Top 10 by Money)\n";
+    text += "--------------------------------\n";
+    top.forEach((d, idx) => {
+      text += `${idx+1}. ${d.name} - $${d.money} (Debt: $${d.debt || 0})\n`;
+    });
+    lb.textContent = text;
+  } catch(e) {
+    lb.textContent = "Leaderboard unavailable.";
+  }
+}
+
+window.onload = () => {
+  loadState();
+  runIntro();
+};
+</script>
+</body>
+</html>
